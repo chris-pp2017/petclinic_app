@@ -1,0 +1,111 @@
+version: '3.8'
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.multi
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      MYSQL_URL: jdbc:mysql://mysqlserver/petclinic
+    volumes:
+      - christel:/app
+    networks:
+      - chris
+    depends_on:
+      - redis-0
+      - mysqlserver
+
+  mysqlserver:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      MYSQL_USER: petclinic
+      MYSQL_PASSWORD: petclinic
+      MYSQL_DATABASE: petclinic
+    volumes:
+      - mysql_config:/etc/mysql/conf.d
+    networks:
+      - chris
+
+  redis-1:
+    image: redis:4.0.2
+    ports:
+      - "7000:7000"
+    #command: ["redis-server", "/etc/redis/redis-cluster-node-1.conf", "--cluster-enabled yes", "--cluster-config-file /etc/redis/nodes.conf", "--cluster-node-timeout 5000"]
+    volumes:
+      - redis-1:/etc/redis
+    depends_on:
+      - sentinel-1
+    networks:
+      - chris
+
+  redis-2:
+    image: redis:4.0.2
+    ports:
+      - "7001:7001"
+    #command: ["redis-server", "/etc/redis/redis-cluster-node-2.conf", "--cluster-enabled yes", "--cluster-config-file /etc/redis/nodes.conf", "--cluster-node-timeout 5000"]
+    volumes:
+      - redis-2:/etc/redis
+    depends_on:
+      - sentinel-2
+    networks:
+      - chris
+  redis-0:
+    image: redis:4.0.2
+    ports:
+      - "7002:7002"
+    #command: ["redis-server", "/etc/redis/redis-cluster-node-3.conf", "--cluster-enabled yes", "--cluster-config-file /etc/redis/nodes.conf", "--cluster-node-timeout 5000"]
+    volumes:
+      - redis-0:/etc/redis
+    depends_on:
+      - sentinel-0
+    networks:
+      - chris
+
+  sentinel-1:
+    image: redis:4.0.2
+    ports:
+      - "26379:26379"
+    #command: ["redis-sentinel", "/etc/redis/sentinel-1.conf", "--sentinel"]
+    volumes:
+      - sentinel-1:/etc/redis
+    networks:
+      - chris
+
+  sentinel-2:
+    image: redis:4.0.2
+    ports:
+      - "26380:26379"
+    #command: ["redis-sentinel", "/etc/redis/sentinel-2.conf", "--sentinel"]
+    volumes:
+      - sentinel-2:/etc/redis
+    networks:
+      - chris
+
+  sentinel-0:
+    image: redis:4.0.2
+    ports:
+      - "26381:26379"
+    #command: ["redis-sentinel", "/etc/redis/sentinel-3.conf", "--sentinel"]
+    volumes:
+      - sentinel-0:/etc/redis
+    networks:
+      - chris
+
+volumes:
+  christel:
+  mysql_config:
+  redis-1:
+  redis-2:
+  redis-0:
+  sentinel-0:
+  sentinel-1:
+  sentinel-2:
+
+networks:
+  chris:
+    driver: bridge
