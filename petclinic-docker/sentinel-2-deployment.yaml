@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: sentinel-2
+  name: sentinel-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sentinel-2
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/petclinic-docker-chris: "true"
+        io.kompose.service: sentinel-2
+    spec:
+      containers:
+        - image: redis:4.0.2
+          name: sentinel-2
+          ports:
+            - containerPort: 26379
+              hostPort: 26380
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/redis
+              name: sentinel-2
+      restartPolicy: Always
+      volumes:
+        - name: sentinel-2
+          persistentVolumeClaim:
+            claimName: sentinel-2

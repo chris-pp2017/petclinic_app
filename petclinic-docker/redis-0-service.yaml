@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: redis-0
+  name: redis-0
+spec:
+  ports:
+    - name: "7002"
+      port: 7002
+      targetPort: 7002
+  selector:
+    io.kompose.service: redis-0
